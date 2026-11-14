@@ -14,13 +14,14 @@ AivisSpeech Studio デスクトップ版は、次のソフトウェアを利用�
 
 ## 同梱しているもの
 
-### FFmpeg
+### libsndfile（音声を MP3 にするために使用）
 
-- バージョン: 7.1（[imageio-ffmpeg](https://github.com/imageio/imageio-ffmpeg) が配布する静的ビルド。ルーターの中で、音声を MP3 に変換するために使います）
-- ライセンス: **GNU GPL v2 以降**（この静的ビルドは `--enable-gpl` を指定してビルドされており、libx264・libx265・libmp3lame などを含みます）
-- FFmpeg のソースコード: <https://ffmpeg.org/download.html>
-- FFmpeg は、このアプリのほかの部分とは別の実行ファイルとして同梱し、コマンドとして呼び出して使っています。
-- 今後、GPL を含まない（LGPL のみの）ビルドへ切り替える予定です。
+- ルーターの中で、音声（WAV）を MP3 に変換するために、[libsndfile](https://libsndfile.github.io/libsndfile/)（バージョン 1.2.x。Python の [soundfile](https://github.com/bastibe/python-soundfile) に含まれる）を使います。
+- ライセンス: **GNU LGPL v2.1 以降**（libsndfile）。soundfile 自体は BSD-3-Clause。
+- libsndfile の MP3 変換は、LAME（libmp3lame、LGPL）と mpg123（LGPL）を使っています。
+- ソースコード: <https://github.com/libsndfile/libsndfile>
+- これらは動的ライブラリとして同梱しているので、ライブラリを差し替えて使うことができます。
+- 以前の版にあった FFmpeg（GPL ビルド）は、この版では同梱していません。
 
 ### Electron / Chromium
 
@@ -41,9 +42,8 @@ AivisSpeech Studio デスクトップ版は、次のソフトウェアを利用�
 | Uvicorn | 0.30.6 | BSD-3-Clause |
 | HTTPX | 0.27.2 | BSD-3-Clause |
 | Pydantic / pydantic-settings | 2.x / 2.5.2 | MIT |
-| pydub | 0.25.1 | MIT |
+| soundfile | 0.14.0 | BSD-3-Clause（同梱の libsndfile は LGPL-2.1） |
 | python-multipart | 0.0.12 | Apache-2.0 |
-| imageio-ffmpeg | 0.6.0 | BSD-2-Clause |
 
 上の表のライブラリが依存するそのほかのパッケージ（anyio、h11、certifi など）も、MIT・BSD・Apache・MPL などの許諾型ライセンスです。
 
@@ -56,7 +56,8 @@ AivisSpeech Studio デスクトップ版は、次のソフトウェアを利用�
 
 各ライセンスの全文は、それぞれのプロジェクトのサイトに載っています。
 
-- GNU GPL v2: <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+- GNU GPL v2（PyInstaller のブートローダー）: <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+- GNU LGPL v2.1: <https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>
 - GNU LGPL v3: <https://www.gnu.org/licenses/lgpl-3.0.html>
 - MIT License: <https://opensource.org/license/mit>
 - BSD 3-Clause: <https://opensource.org/license/bsd-3-clause>

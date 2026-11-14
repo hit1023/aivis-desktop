@@ -117,7 +117,7 @@ PCが苦手でも大丈夫です。順番に、1つずつやってみましょ�
 |---|---|---|
 | [AivisSpeech](https://github.com/Aivis-Project/AivisSpeech) / [AivisSpeech Engine](https://github.com/Aivis-Project/AivisSpeech-Engine) | LGPL-3.0 | 声を出す本体。同梱せず、ユーザーが別に入れて使います |
 | 音声モデル（[Aivis Hub](https://hub.aivis-project.com/) で配布） | モデルごとに異なります（例: ACML） | 使うモデルの利用規約に従ってください |
-| [FFmpeg](https://ffmpeg.org/) | GPL v2 以降（同梱のビルド） | 音声を MP3 にするために同梱。ソースは [FFmpeg 公式](https://ffmpeg.org/download.html) |
+| [libsndfile](https://libsndfile.github.io/libsndfile/)（soundfile 経由） | LGPL v2.1 以降 | 音声を MP3 にするために同梱。ソースは [GitHub](https://github.com/libsndfile/libsndfile) |
 | [Electron](https://www.electronjs.org/) / Chromium | MIT ほか | アプリの土台 |
 | Python、PyInstaller、FastAPI、Uvicorn、HTTPX ほか | PSF、GPL（例外付き）、MIT、BSD ほか | 同梱ルーターの部品 |
 | Syne、JetBrains Mono、Noto Sans JP | SIL Open Font License 1.1 | 画面のフォント（Google Fonts から読み込み） |
@@ -189,5 +189,4 @@ Windows 版は、まだ一度も作って動かしていません。署名なし
 
 - 署名・公証（Mac）、コード署名（Windows）、自動更新
 - 初回起動での「ローカルエンジン / Aivis Cloud（自前APIキー）」の選択。エンジンを別に入れなくても使えるようにするための案です
-- 同梱 ffmpeg のライセンス確認（配布前に LGPL ビルドへ）
 - 配布ページ（ダウンロード用のリンク）
