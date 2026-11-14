@@ -1,0 +1,76 @@
+{
+  "name": "hit-aivis-desktop",
+  "version": "0.1.0",
+  "description": "AivisSpeech Studio デスクトップ版（ルーター同梱）。サーバー版とは別の配布物。",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "prepare:vendor": "node scripts/prepare.js",
+    "start": "electron .",
+    "dev": "AIVIS_DEBUG_PORT=9222 electron .",
+    "dist": "electron-builder --mac dmg --arm64 --publish never",
+    "dist:mac": "electron-builder --mac dmg --arm64 --publish never",
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "author": "hit1023",
+  "build": {
+    "appId": "jp.s-quad.aivis-desktop",
+    "productName": "AivisSpeech Studio",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/router",
+        "to": "router"
+      },
+      {
+        "from": "vendor/ui",
+        "to": "ui"
+      }
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.utilities",
+      "identity": null
+    },
+    "dmg": {
+      "title": "AivisSpeech Studio"
+    },
+    "afterPack": "scripts/adhoc-sign.js",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "AivisSpeech Studio"
+    },
+    "artifactName": "AivisSpeech-Studio-${version}-${os}-${arch}.${ext}"
+  }
+}

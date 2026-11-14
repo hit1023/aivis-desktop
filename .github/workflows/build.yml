@@ -1,0 +1,52 @@
+# インストーラーを Mac / Windows で作る。
+# PyInstaller(ルーター)は「動かしている OS 用」しか作れないので、OS ごとの実機(ランナー)で作る。
+# 手動実行(Actions タブ → Run workflow)か、v* タグの push で動く。成果物は Artifacts からダウンロードできる。
+name: build-installers
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14          # Apple Silicon
+            script: dist:mac
+            artifact: mac-arm64
+            glob: hit-aivis-desktop/dist/*.dmg
+          - os: windows-latest
+            script: dist:win
+            artifact: windows-x64
+            glob: hit-aivis-desktop/dist/*.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      # 画面とルーターはサーバー版(公開リポジトリ)をビルド時に取り込む。兄弟ディレクトリに置く。
+      - uses: actions/checkout@v4
+        with: { path: hit-aivis-desktop }
+      - uses: actions/checkout@v4
+        with: { repository: hit1023/hit-aivis-webui, path: hit-aivis-webui }
+      - uses: actions/checkout@v4
+        with: { repository: hit1023/hit-aivis-router, path: hit-aivis-router }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: install
+        working-directory: hit-aivis-desktop
+        run: npm install
+      - name: prepare (画面+ルーター)
+        working-directory: hit-aivis-desktop
+        run: npm run prepare:vendor
+        env:
+          PYTHON: python
+      - name: build installer
+        working-directory: hit-aivis-desktop
+        run: npm run ${{ matrix.script }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AivisSpeech-Studio-${{ matrix.artifact }}
+          path: ${{ matrix.glob }}
+          if-no-files-found: error
