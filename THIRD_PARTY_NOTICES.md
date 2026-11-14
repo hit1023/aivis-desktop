@@ -9,7 +9,7 @@ AivisSpeech Studio デスクトップ版は、次のソフトウェアを利用�
 | 名称 | ライセンス | 説明 |
 |---|---|---|
 | [AivisSpeech](https://github.com/Aivis-Project/AivisSpeech) / [AivisSpeech Engine](https://github.com/Aivis-Project/AivisSpeech-Engine) | LGPL-3.0 | 音声合成を行う本体です。ユーザーが別にインストールして使います。このアプリには含まれていません。 |
-| 音声モデル（`.aivmx`） | モデルごとに異なります（例: ACML） | 声の種類ごとに利用規約・ライセンスがあります。使うモデルの条件に従ってください。 |
+| 音声モデル（`.aivmx`。[Aivis Hub](https://hub.aivis-project.com/) で配布） | モデルごとに異なります（例: ACML） | 声の種類ごとに利用規約・ライセンスがあります。使うモデルの条件に従ってください。 |
 
 ## 同梱しているもの
 

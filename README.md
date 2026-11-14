@@ -53,6 +53,8 @@ PCが苦手でも大丈夫です。順番に、1つずつやってみましょ�
 2. ダウンロードのリンクから、自分のPC（Mac か Windows）に合うものを選びます
 3. ダウンロードできたら開いて、画面の言うとおりに「次へ」を押していきます
 
+> 声の種類（音声モデル）を増やしたいときは、[Aivis Hub](https://hub.aivis-project.com/) からダウンロードできます。
+>
 > もう入れてある人は、ステップ2へ進んでください。
 > 入れ忘れても大丈夫です。このアプリを開くと、「AivisSpeech のインストールが必要です」と教えてくれます。
 
@@ -112,7 +114,7 @@ PCが苦手でも大丈夫です。順番に、1つずつやってみましょ�
 | 名称 | ライセンス | 備考 |
 |---|---|---|
 | [AivisSpeech](https://github.com/Aivis-Project/AivisSpeech) / [AivisSpeech Engine](https://github.com/Aivis-Project/AivisSpeech-Engine) | LGPL-3.0 | 声を出す本体。同梱せず、ユーザーが別に入れて使います |
-| 音声モデル | モデルごとに異なります（例: ACML） | 使うモデルの利用規約に従ってください |
+| 音声モデル（[Aivis Hub](https://hub.aivis-project.com/) で配布） | モデルごとに異なります（例: ACML） | 使うモデルの利用規約に従ってください |
 | [FFmpeg](https://ffmpeg.org/) | GPL v2 以降（同梱のビルド） | 音声を MP3 にするために同梱。ソースは [FFmpeg 公式](https://ffmpeg.org/download.html) |
 | [Electron](https://www.electronjs.org/) / Chromium | MIT ほか | アプリの土台 |
 | Python、PyInstaller、FastAPI、Uvicorn、HTTPX ほか | PSF、GPL（例外付き）、MIT、BSD ほか | 同梱ルーターの部品 |
