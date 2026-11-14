@@ -76,5 +76,6 @@
       "shortcutName": "AivisSpeech Studio"
     },
     "artifactName": "AivisSpeech-Studio-${version}-${os}-${arch}.${ext}"
-  }
+  },
+  "license": "MIT"
 }
