@@ -3,7 +3,7 @@
 //   2. /health が返るまで待つ
 //   3. 同梱の画面(vendor/ui/index.html)を開く。接続先は preload.js が localStorage に入れる
 //   4. 終了時にルーターを止める
-const { app, BrowserWindow, dialog, shell } = require('electron');
+const { app, BrowserWindow, dialog, screen, shell } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const net = require('net');
@@ -132,9 +132,75 @@ async function ensureEngine() {
   if (await waitEngine(appPath ? 60 : 300) && mainWin && !mainWin.isDestroyed()) mainWin.reload();
 }
 
+// ---- ウィンドウの大きさ ----
+// 画面からはみ出さない大きさで開く（小さい画面・Windows の拡大表示でも収まる）。
+// 前回の位置と大きさは覚えておき、画面が変わって見えない場所になっていたら中央に戻す。
+const DEF_W = 1180, DEF_H = 820, MIN_W = 720, MIN_H = 560;
+const stateFile = () => path.join(app.getPath('userData'), 'window-state.json');
+
+function loadWinState() {
+  try { return JSON.parse(fs.readFileSync(stateFile(), 'utf8')); } catch (e) { return null; }
+}
+function saveWinState(win) {
+  try {
+    if (win.isDestroyed()) return;
+    const b = win.getNormalBounds();
+    fs.writeFileSync(stateFile(), JSON.stringify({ ...b, maximized: win.isMaximized() }));
+  } catch (e) { /* 保存できなくても動作に影響なし */ }
+}
+// bounds が、いまつながっているどれかの画面に十分見える形で入っているか
+function visibleOnSomeDisplay(b) {
+  return screen.getAllDisplays().some((d) => {
+    const w = d.workArea;
+    const ox = Math.min(b.x + b.width, w.x + w.width) - Math.max(b.x, w.x);
+    const oy = Math.min(b.y + b.height, w.y + w.height) - Math.max(b.y, w.y);
+    return ox >= Math.min(200, b.width) && oy >= Math.min(120, b.height);   // タイトルバーを掴める程度に見えている
+  });
+}
+function initialBounds() {
+  const work = screen.getPrimaryDisplay().workArea;
+  const fit = (b) => {   // 作業領域（メニューバー・タスクバーを除いた範囲）に収める
+    const w = Math.min(b.width, work.width), h = Math.min(b.height, work.height);
+    return { width: Math.max(w, Math.min(MIN_W, work.width)), height: Math.max(h, Math.min(MIN_H, work.height)) };
+  };
+  const st = loadWinState();
+  if (st && Number.isFinite(st.x) && Number.isFinite(st.y) && Number.isFinite(st.width) && Number.isFinite(st.height) && visibleOnSomeDisplay(st)) {
+    const disp = screen.getDisplayMatching(st).workArea;
+    const sz = { width: Math.min(st.width, disp.width), height: Math.min(st.height, disp.height) };
+    return { x: st.x, y: st.y, ...sz, maximized: !!st.maximized };
+  }
+  // 画面の92%までに抑えて中央へ（大きい画面では既定の大きさ）
+  const sz = fit({ width: Math.min(DEF_W, Math.round(work.width * 0.92)), height: Math.min(DEF_H, Math.round(work.height * 0.92)) });
+  return { x: work.x + Math.round((work.width - sz.width) / 2), y: work.y + Math.round((work.height - sz.height) / 2), ...sz, maximized: false };
+}
+
+// 画面の変化（外部モニターを抜いた・解像度や拡大率を変えた）でウィンドウが見えなくなったら戻す
+function keepOnScreen(win) {
+  if (win.isDestroyed() || win.isMaximized() || win.isFullScreen()) return;
+  const b = win.getBounds();
+  const work = screen.getDisplayMatching(b).workArea;
+  const w = Math.min(b.width, work.width), h = Math.min(b.height, work.height);
+  let x = Math.min(Math.max(b.x, work.x), work.x + work.width - w);
+  let y = Math.min(Math.max(b.y, work.y), work.y + work.height - h);
+  if (!visibleOnSomeDisplay(b)) { x = work.x + Math.round((work.width - w) / 2); y = work.y + Math.round((work.height - h) / 2); }
+  if (x !== b.x || y !== b.y || w !== b.width || h !== b.height) win.setBounds({ x, y, width: w, height: h });
+}
+
+// 画面側の保険（サーバー版の画面は変更しない）。長い語や URL・幅の狭い画面でも、内容がウィンドウの外に切れないようにする。
+const FIT_CSS = `
+  html, body { max-width: 100%; overflow-x: hidden; }
+  body { overflow-wrap: break-word; }
+  img, video, canvas, audio, select, input, textarea { max-width: 100%; }
+  .card, .page > * { min-width: 0; }
+  pre, code { white-space: pre-wrap; overflow-wrap: anywhere; }
+`;
+
 async function createWindow(port) {
+  const b = initialBounds();
   const win = new BrowserWindow({
-    width: 1180, height: 820, minWidth: 720, minHeight: 560,
+    x: b.x, y: b.y, width: b.width, height: b.height,
+    minWidth: Math.min(MIN_W, b.width), minHeight: Math.min(MIN_H, b.height),
+    show: false,   // 位置と大きさを決めてから表示（一瞬ずれた場所に出ない）
     backgroundColor: '#0b0a09',
     title: 'AivisSpeech Studio',
     webPreferences: {
@@ -144,9 +210,20 @@ async function createWindow(port) {
       nodeIntegration: false,
     },
   });
+  if (b.maximized) win.maximize();
+  win.once('ready-to-show', () => win.show());
   // 外部リンクは既定のブラウザで開く（アプリ内に別サイトを表示しない）
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('file:')) { e.preventDefault(); if (/^https?:/.test(url)) shell.openExternal(url); } });
+  win.webContents.on('did-finish-load', () => { win.webContents.insertCSS(FIT_CSS).catch(() => {}); });
+  // 位置・大きさを覚える（動かしている間は間引く）
+  let t = null;
+  const later = () => { clearTimeout(t); t = setTimeout(() => saveWinState(win), 400); };
+  win.on('resize', later); win.on('move', later);
+  win.on('close', () => saveWinState(win));
+  const onDisplay = () => keepOnScreen(win);
+  screen.on('display-metrics-changed', onDisplay); screen.on('display-removed', onDisplay);
+  win.on('closed', () => { screen.removeListener('display-metrics-changed', onDisplay); screen.removeListener('display-removed', onDisplay); });
   mainWin = win;
   await win.loadFile(UI_INDEX);
 }

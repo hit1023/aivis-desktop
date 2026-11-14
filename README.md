@@ -104,6 +104,20 @@ PCが苦手でも大丈夫です。順番に、1つずつやってみましょ�
 それでもだめなときは、おうちの人や詳しい人に、このページを見せてください。
 
 ---
+
+## ライセンスについて
+
+このアプリは、次のソフトウェアを利用しています。詳しい一覧は [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) にあります（インストーラーにも同梱しています）。
+
+| 名称 | ライセンス | 備考 |
+|---|---|---|
+| [AivisSpeech](https://github.com/Aivis-Project/AivisSpeech) / [AivisSpeech Engine](https://github.com/Aivis-Project/AivisSpeech-Engine) | LGPL-3.0 | 声を出す本体。同梱せず、ユーザーが別に入れて使います |
+| 音声モデル | モデルごとに異なります（例: ACML） | 使うモデルの利用規約に従ってください |
+| [FFmpeg](https://ffmpeg.org/) | GPL v2 以降（同梱のビルド） | 音声を MP3 にするために同梱。ソースは [FFmpeg 公式](https://ffmpeg.org/download.html) |
+| [Electron](https://www.electronjs.org/) / Chromium | MIT ほか | アプリの土台 |
+| Python、PyInstaller、FastAPI、Uvicorn、HTTPX ほか | PSF、GPL（例外付き）、MIT、BSD ほか | 同梱ルーターの部品 |
+| Syne、JetBrains Mono、Noto Sans JP | SIL Open Font License 1.1 | 画面のフォント（Google Fonts から読み込み） |
+
 ---
 
 ## 開発者向け
@@ -122,6 +136,10 @@ Electron
 - 画面とルーターはサーバー版のファイルを**ビルド時にコピー**して使います（このリポジトリには入れません）。サーバー版の更新は `npm run prepare:vendor` で取り込めます。
 - 接続先ポートと既定の表示モードは `preload.js` が localStorage に入れます（画面側は無改造です）。
 - 設定・履歴などは OS のアプリデータ領域（Mac: `~/Library/Application Support/hit-aivis-desktop/router/`、Windows: `%APPDATA%\hit-aivis-desktop\router\`）に保存されます。ルーターのログは、その1つ上のフォルダにある `router.log` です。
+
+### ウィンドウの大きさ
+
+画面（メニューバー・タスクバーを除いた範囲）に収まる大きさで開き、前回の位置と大きさを `window-state.json` に覚えます。外部モニターを抜くなどして見えない場所になったときは、中央に戻します。画面側（サーバー版と共通）には手を入れず、`main.js` が表示時に「内容が外へ切れない」ための保険の CSS を足しています。
 
 ### AivisSpeech が見つからないとき
 
