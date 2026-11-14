@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14          # Apple Silicon
+          - os: macos-latest          # Apple Silicon
             script: dist:mac
             artifact: mac-arm64
             glob: hit-aivis-desktop/dist/*.dmg
